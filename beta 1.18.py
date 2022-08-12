@@ -1,7 +1,7 @@
 from tkinter import *
 from header import *
 import random
-
+import time
 I_AM_DEVELOPER = False
 DEBUG = False
 mygame = Game()
@@ -140,6 +140,8 @@ def update_win_text():
 
 
 def render():
+    
+    root.focus_set()
     if DEBUG:print('rendering board ', end = '') 
     #render board
     for j in range(20):
@@ -192,33 +194,39 @@ def render():
 #--------------------------------------------------------------------------#
 
 class Setting:
-    das = 40
-    arr = 0
+    delay = 0
+    das = 133/1000
+    arr = 0/1000
     left_on_press = False
     right_on_press = False
     mode = 'combo'
     no_of_unreserved_piece = 5
 
+
 def press_left(first_call=False):
     if first_call and Setting.left_on_press:
         return
     if first_call:
-        Setting.das = 100
+        Setting.timer1 = time.perf_counter()
+        Setting.delay = Setting.das
         mygame.move_left()
         render()
         Setting.right_on_press = False
         Setting.left_on_press = True
     elif not Setting.left_on_press:
         return
-    if Setting.das == 0:
+    current_time = time.perf_counter()
+
+    if current_time - Setting.timer1 > Setting.delay:
         if Setting.arr == 0:
             mygame.move_leftmost()
         else:
             mygame.move_left()
         render()
-        Setting.das = Setting.arr
-    else:
-        Setting.das -= 1
+        Setting.delay = Setting.arr
+        Setting.timer1 = current_time
+        
+
 
     root.after(1, press_left)
 
@@ -230,22 +238,24 @@ def press_right(first_call=False):
     if first_call and Setting.right_on_press:
         return
     if first_call:
-        Setting.das = 100
+        Setting.timer2 = time.perf_counter()
+        Setting.delay = Setting.das
         mygame.move_right()
         render()
         Setting.left_on_press = False
         Setting.right_on_press = True
     elif not Setting.right_on_press:
         return
-    if Setting.das == 0:
+    current_time = time.perf_counter()
+    if current_time - Setting.timer2 > Setting.delay:
         if Setting.arr == 0:
             mygame.move_rightmost()
         else:
             mygame.move_right()
         render()
-        Setting.das = Setting.arr
-    else:
-        Setting.das -= 1
+        Setting.delay = Setting.arr
+        Setting.timer2 = current_time
+
     root.after(1, press_right)
 
 def release_right():
@@ -681,6 +691,8 @@ def play_a_map(mode, seed = None):
     random.seed(seed)
     logprint('\ngenerating a map with seed = ',seed)
     restart()
+    if get_no_of_piece() is False:
+        no_of_piece_str.set('5')
     Setting.no_of_unreserved_piece = get_no_of_piece() - (mode in ['comboquad','combotsd'])
     Setting.mode = mode
     logprint('mode=', mode, '; no of unreserved piece=', Setting.no_of_unreserved_piece)
@@ -748,23 +760,27 @@ winning_requirement2.pack()
 
 #------------------------------------------#
 # 8.create spinbox for no of piece, mode
-#------------------------------------------#
+#------------------------------------------#>lk
 setting_frame = LabelFrame(root, text = "setting:", height = 100, width = 400, font=('Arial', 20) )
 setting_frame.place(x=800,y=500)
 no_of_piece_label = Label(setting_frame, text = 'enter number of piece (2 to 7)', font=('Arial', 15), fg='black')
 no_of_piece_label.pack(anchor = 'w')
+
+
+
 no_of_piece_str = StringVar()
 no_of_piece_str.set('5')
-no_of_piece_box = Spinbox(setting_frame, from_ = 2, to = 7, textvariable = no_of_piece_str)
-no_of_piece_box.pack(anchor = 'w')
+no_of_piece_box = Spinbox(setting_frame, from_ = 2, to = 7, textvariable = no_of_piece_str, state = 'disable')
+no_of_piece_box.pack(anchor = 'w', padx=20)
 
 skim_label = Label(setting_frame, text = 'do you want more skims in solutions', font=('Arial', 15), fg='black')
 skim_label.pack(anchor = 'w')
 skim_or_not = IntVar()
 skim_box = Checkbutton(setting_frame,text = 'more', variable = skim_or_not, onvalue=1, offvalue=0)
-skim_box.pack(anchor = 'w')
+skim_box.pack(anchor = 'w',padx=20)
 
-
+setting_frame.bind('<Enter>',lambda event: no_of_piece_box.config(state = 'normal'))
+setting_frame.bind('<Leave>',lambda event: no_of_piece_box.config(state = 'disable'))
 def get_no_of_piece():
     text = no_of_piece_box.get()
     if text in ['2','3','4','5','6','7']:
@@ -775,7 +791,7 @@ def get_no_of_piece():
 # 9.how to play
 #------------------------------------------#
 how_to_play_frame = LabelFrame(root, text = "how to play ", height = 200, width = 200, font=('Arial', 20) )
-how_to_play_frame.place(x=950,y=100)
+how_to_play_frame.place(x=950,y=50)
 how_to_play_text = '''move left: ←
 move right: →
 rotate clockwise: x / ↑
@@ -784,10 +800,55 @@ rotate 180 degree: a
 hold: left shift / c
 softdrop: ↓
 harddrop: space
-retry: c
+retry: r
 '''
 how_to_play_label = Label(how_to_play_frame, text = how_to_play_text,  font=('Arial', 15), fg='black',anchor = 'w')
 how_to_play_label.pack(anchor = 'w')
+
+#------------------------------------------#
+# 10.handling
+#------------------------------------------#
+handling_frame = LabelFrame(root, text = "handling:", height = 150, width = 300, font=('Arial', 20) )
+handling_frame.place(x=800,y=350)
+
+arr_frame = Canvas(handling_frame, height = 50, width = 300)
+arr_frame.pack()
+das_frame = Canvas(handling_frame, height = 50, width = 300)
+das_frame.pack()
+
+arr_label = Label(arr_frame, text = 'ARR (0 to 100)',  font=('Arial', 10), fg='black')
+arr_label.pack(anchor = 'w', side = 'left', ipadx=10)
+arr = StringVar()
+arr.set('0')
+arr_box = Spinbox(arr_frame, from_ = 0, to = 100, textvariable = arr, state = 'disable')
+arr_box.pack()
+
+das_label = Label(das_frame, text = 'DAS (1 to 200)',  font=('Arial', 10), fg='black')
+das_label.pack(anchor = 'w', side = 'left', ipadx=10)
+das = StringVar()
+das.set('133')
+das_box = Spinbox(das_frame, from_ = 1, to = 200, textvariable = das, state = 'disable')
+das_box.pack()
+
+def save_handling():
+    if not arr.get().isnumeric():
+        arr.set('0')
+    elif not (0<= int(arr.get()) <= 100):
+        arr.set('0')
+    Setting.arr = int(arr.get())/1000
+
+    if not das.get().isnumeric():
+        das.set('0')
+    elif not (1<= int(das.get()) <= 200):
+        das.set('133')
+    Setting.arr = int(arr.get())/1000
+
+handling_frame.bind('<Enter>', lambda event: (arr_box.config(state = 'normal'), das_box.config(state = 'normal')))
+handling_frame.bind('<Leave>',lambda event: (save_handling(), arr_box.config(state = 'disable'), das_box.config(state = 'disable')))
+
+
+
+
 render()
 root.mainloop()
 
