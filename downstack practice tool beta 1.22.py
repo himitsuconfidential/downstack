@@ -197,7 +197,7 @@ def update_win_text():
             winning_requirement2.config(fg ='green')
 
 #--------------------------------------------------------------------------#
-# 5. bind piece movement with keyboard
+# 5. function for movement of keyboard
 #--------------------------------------------------------------------------#
 
 class Setting:
@@ -273,24 +273,7 @@ def restart():
     mygame.__init__()
 
 
-root.bind('<KeyPress-Left>', lambda event: (press_left(first_call=True)))
-root.bind('<KeyRelease-Left>', lambda event: (release_left()))
-root.bind('<KeyPress-Right>', lambda event: (press_right(first_call=True)))
-root.bind('<KeyRelease-Right>', lambda event: (release_right()))
 
-root.bind('<Down>', lambda event: (mygame.softdrop(), render()))
-root.bind('<Up>', lambda event: (mygame.rotate_clockwise(), render()))
-root.bind('<space>', lambda event: (mygame.harddrop(),update_stat(),update_win_text(), render()))
-
-root.bind('<z>', lambda event: (mygame.rotate_anticlockwise(), render()))
-root.bind('<Shift-Z>', lambda event: (mygame.rotate_anticlockwise(), render()))
-root.bind('<x>', lambda event: (mygame.rotate_clockwise(), render()))
-root.bind('<Shift-X>', lambda event: (mygame.rotate_clockwise(), render()))
-root.bind('<a>', lambda event: (mygame.rotate_180(), render()))
-root.bind('<Shift-A>', lambda event: (mygame.rotate_180(), render()))
-root.bind('<r>', lambda event: (retry()))
-root.bind('<Shift_L>', lambda event: (mygame.hold(), render()))
-root.bind('<c>', lambda event: (mygame.hold(), render()))
 
 #--------------------------------------------------------------------------#
 # 6. downstack practice map generation
@@ -838,11 +821,12 @@ setting_frame.bind('<Enter>',lambda event: no_of_piece_box.config(state = 'norma
 setting_frame.bind('<Leave>',lambda event: (save_no_of_piece(), no_of_piece_box.config(state = 'disable')))
 
 #------------------------------------------#
-# 9.teach how to play
+# 9.show the keypress and create keybind
 #------------------------------------------#
 how_to_play_frame = LabelFrame(root, text = "how to play ", height = 200, width = 200, font=('Arial', 20) )
 how_to_play_frame.place(x=950,y=50)
-how_to_play_text = '''move left: ←
+
+default_how_to_play_text = '''move left: ←
 move right: →
 rotate clockwise: x / ↑
 rotate anticlockwise: z
@@ -852,8 +836,49 @@ softdrop: ↓
 harddrop: space
 retry: r
 '''
+
+try:
+    with open('config.txt','r') as f:
+        f.readline()
+        how_to_play_text = f.read()
+    Left,Right,cw,ccw,ow,hold,soft,hard,re = [text.partition(':')[2].strip() for text in how_to_play_text.splitlines()]
+    root.bind(f'<KeyPress-{Left}>', lambda event: (press_left(first_call=True)))
+    root.bind(f'<KeyRelease-{Left}>', lambda event: (release_left()))
+    root.bind(f'<KeyPress-{Right}>', lambda event: (press_right(first_call=True)))
+    root.bind(f'<KeyRelease-{Right}>', lambda event: (release_right()))
+
+    root.bind(f'<{soft}>', lambda event: (mygame.softdrop(), render()))
+    root.bind(f'<{hard}>', lambda event: (mygame.harddrop(),update_stat(),update_win_text(), render()))
+
+    root.bind(f'<{ccw}>', lambda event: (mygame.rotate_anticlockwise(), render()))
+    root.bind(f'<{cw}>', lambda event: (mygame.rotate_clockwise(), render()))
+    root.bind(f'<{ow}>', lambda event: (mygame.rotate_180(), render()))
+    root.bind(f'<{re}>', lambda event: (retry()))
+    root.bind(f'<{hold}>', lambda event: (mygame.hold(), render()))
+except FileNotFoundError:
+    how_to_play_text = default_how_to_play_text
+    
+    root.bind('<KeyPress-Left>', lambda event: (press_left(first_call=True)))
+    root.bind('<KeyRelease-Left>', lambda event: (release_left()))
+    root.bind('<KeyPress-Right>', lambda event: (press_right(first_call=True)))
+    root.bind('<KeyRelease-Right>', lambda event: (release_right()))
+
+    root.bind('<Down>', lambda event: (mygame.softdrop(), render()))
+    root.bind('<Up>', lambda event: (mygame.rotate_clockwise(), render()))
+    root.bind('<space>', lambda event: (mygame.harddrop(),update_stat(),update_win_text(), render()))
+
+    root.bind('<z>', lambda event: (mygame.rotate_anticlockwise(), render()))
+    root.bind('<Shift-Z>', lambda event: (mygame.rotate_anticlockwise(), render()))
+    root.bind('<x>', lambda event: (mygame.rotate_clockwise(), render()))
+    root.bind('<Shift-X>', lambda event: (mygame.rotate_clockwise(), render()))
+    root.bind('<a>', lambda event: (mygame.rotate_180(), render()))
+    root.bind('<Shift-A>', lambda event: (mygame.rotate_180(), render()))
+    root.bind('<r>', lambda event: (retry()))
+    root.bind('<Shift_L>', lambda event: (mygame.hold(), render()))
+    root.bind('<c>', lambda event: (mygame.hold(), render()))
 how_to_play_label = Label(how_to_play_frame, text = how_to_play_text,  font=('Arial', 15), fg='black',anchor = 'w')
 how_to_play_label.pack(anchor = 'w')
+
 
 #------------------------------------------#
 # 10.allow choice of handling
