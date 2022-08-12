@@ -842,8 +842,36 @@ try:
         f.readline()
         how_to_play_text = f.read()
     Left,Right,cw,ccw,ow,hold,soft,hard,re = [text.partition(':')[2].strip() for text in how_to_play_text.splitlines()]
+
+    
     root.bind(f'<KeyPress-{Left}>', lambda event: (press_left(first_call=True)))
     root.bind(f'<KeyRelease-{Left}>', lambda event: (release_left()))
+
+    root.bind(f'<KeyPress-{Right}>', lambda event: (press_right(first_call=True)))
+    root.bind(f'<KeyRelease-{Right}>', lambda event: (release_right()))
+
+    root.bind(f'<{soft}>', lambda event: (mygame.softdrop(), render()))
+    root.bind(f'<{hard}>', lambda event: (mygame.harddrop(),update_stat(),update_win_text(), render()))
+
+    root.bind(f'<{ccw}>', lambda event: (mygame.rotate_anticlockwise(), render()))
+    root.bind(f'<{cw}>', lambda event: (mygame.rotate_clockwise(), render()))
+    root.bind(f'<{ow}>', lambda event: (mygame.rotate_180(), render()))
+    root.bind(f'<{re}>', lambda event: (retry()))
+    root.bind(f'<{hold}>', lambda event: (mygame.hold(), render()))
+
+    if len(Left)==1: Left = Left.upper()
+    if len(Right)==1: Right = Right.upper()
+    if len(cw)==1: cw = cw.upper()
+    if len(ccw)==1: ccw = ccw.upper()
+    if len(ow)==1: ow = ow.upper()
+    if len(hold)==1: hold = hold.upper()
+    if len(soft)==1: soft = soft.upper()
+    if len(hard)==1: hard = hard.upper()
+    if len(re)==1: re = re.upper()
+    
+    root.bind(f'<KeyPress-{Left}>', lambda event: (press_left(first_call=True)))
+    root.bind(f'<KeyRelease-{Left}>', lambda event: (release_left()))
+
     root.bind(f'<KeyPress-{Right}>', lambda event: (press_right(first_call=True)))
     root.bind(f'<KeyRelease-{Right}>', lambda event: (release_right()))
 

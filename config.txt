@@ -1,0 +1,10 @@
+refer to https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html
+move left: Left
+move right: Right
+rotate clockwise: x
+rotate anticlockwise: z
+rotate 180 degree: a
+hold: Shift_L
+softdrop: Down
+harddrop: space
+retry: r
