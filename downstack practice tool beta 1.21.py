@@ -741,10 +741,13 @@ def play_a_map(mode, seed = None):
     mygame.drawmode = True
     record.piece_added = []
     record.board = []
-    for i in range(20):
+    for i in range(10):
         if generate_a_ds_map(Setting.no_of_unreserved_piece) is True:
             break
         else:
+            if i%2 == 1:
+                generate_final_map()
+                record.finished_map = [[cell for cell in row] for row in mygame.board]
             logprint('refresh and generate for times', i)
 
     print_answer()
