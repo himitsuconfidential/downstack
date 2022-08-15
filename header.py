@@ -36,6 +36,7 @@ possible_x_table={
     'L': [(1,8),(1,9),(1,8),(0,8)],
     }
 possible_piece_info_table = [(p,idx,c) for p in possible_x_table for idx,cr in enumerate(possible_x_table[p]) for c in range(cr[0], cr[1]+1)]
+possible_piece_config_table = {p: [(idx,c) for idx,cr in enumerate(possible_x_table[p]) for c in range(cr[0], cr[1]+1)] for p in possible_x_table}
 pure_line_clear_table = [0, 0, 1, 2, 4]
 tspin_line_clear_table = [0, 2, 4, 6]
 tspin_mini_line_clear_table = [0, 0, 0, 0, 0]
